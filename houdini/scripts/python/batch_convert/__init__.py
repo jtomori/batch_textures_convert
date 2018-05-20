@@ -10,6 +10,10 @@ from threading import Thread
 import gui
 import converters
 
+# globals for this module
+input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr"]
+output_formats_dict = converters.GenericCommand.getValidChildCommands()
+
 def runGui():
     """
     displays the gui
@@ -17,7 +21,7 @@ def runGui():
     dialog = gui.Gui()
     dialog.show()
 
-def workerConvert(q, convert_command):
+def workerFunc(q, convert_command):
     """
     a worker function, which is executed in parallel
     """
@@ -35,27 +39,35 @@ def workerConvert(q, convert_command):
         
         q.task_done()
 
-def batchConvert():
+def batchConvert(input_formats, output_format_func, root_path):
+    """
+    finds and converts textures in a specified folder
+    """
+    print input_formats
+    print output_format_func
+    print root_path
+
+def batchConvert_old():
     """
     finds and converts textures in a specified folder
     """
 
     # ask user for formats to convert
-    img_options = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr"]
-    img = hou.ui.selectFromList(choices=img_options, default_choices=range( len(img_options) ), message="Select input texture formats to be converted", title="Choose input texture formats", clear_on_cancel=True, column_header="Formats")    
+    input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr"]
+    img = hou.ui.selectFromList(choices=input_formats, default_choices=range( len(input_formats) ), message="Select input texture formats to be converted", title="Choose input texture formats", clear_on_cancel=True, column_header="Formats")    
     if len(img) == 0:
         return
 
-    img = [ img_options[i] for i in img ]
+    img = [ input_formats[i] for i in img ]
 
     # ask user for output format
-    command_classes_dict = converters.GenericCommand.getValidChildCommands()
+    output_formats_dict = converters.GenericCommand.getValidChildCommands()
 
-    command = hou.ui.selectFromList(choices=command_classes_dict.keys(), exclusive=True, default_choices=[0], message="Select output texture format", title="Choose output format", clear_on_cancel=True, column_header="Formats" )
+    command = hou.ui.selectFromList(choices=output_formats_dict.keys(), exclusive=True, default_choices=[0], message="Select output texture format", title="Choose output format", clear_on_cancel=True, column_header="Formats" )
     if len(command) == 0:
         return
-    command = command_classes_dict.keys()[ command[0] ]
-    command = command_classes_dict[ command ]
+    command = output_formats_dict.keys()[ command[0] ]
+    command = output_formats_dict[ command ]
 
     # ask user for root path of textures
     root = hou.getenv("JOB")
@@ -88,7 +100,7 @@ def batchConvert():
 
         # spawn threads with convert function
         for i in range(threads):
-            worker = Thread(target=workerConvert, args=(texturesQ, command))
+            worker = Thread(target=workerFunc, args=(texturesQ, command))
             worker.setDaemon(True)
             worker.start()
 

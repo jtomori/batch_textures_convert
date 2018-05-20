@@ -14,7 +14,12 @@
   <tool name="reload_batch_convert" label="Reload" icon="PLASMA_App">
     <helpText><![CDATA[""" Reloads batch_convert python module """]]></helpText>
     <script scriptType="python"><![CDATA[import batch_convert
-reload(batch_convert)]]></script>
+import batch_convert.gui
+import batch_convert.converters
+reload(batch_convert)
+reload(batch_convert.gui)
+reload(batch_convert.converters)
+]]></script>
   </tool>
 
   <tool name="batch_convert" label="Batch Convert" icon="PLASMA_App">

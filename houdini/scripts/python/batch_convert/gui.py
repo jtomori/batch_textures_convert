@@ -1,4 +1,6 @@
 import hou
+import converters
+import batch_convert
 
 from PySide2 import QtCore
 from PySide2 import QtWidgets
@@ -13,11 +15,11 @@ class Gui(QtWidgets.QWidget):
         self.setParent(hou.ui.mainQtWindow(), QtCore.Qt.Window)
         self.setProperty("houdiniStyle", True)
         
-        self.setWindowTitle("Test Gui")
+        self.setWindowTitle("Batch texture conversion")
         self.setMinimumSize(400, 500)
 
-        self.input_formats_list = ["jpg", "png", "tga", "exr"]
-        self.output_formats_list = ["rat", "tx", "rs"]
+        self.input_formats_list = batch_convert.input_formats
+        self.output_formats_list = batch_convert.output_formats_dict.keys()
 
         # create layouts
         main_layout = QtWidgets.QVBoxLayout()
@@ -39,6 +41,8 @@ class Gui(QtWidgets.QWidget):
         self.input_formats.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.input_formats.addItems(self.input_formats_list)
         self.input_formats.setFixedHeight( self.input_formats.sizeHintForRow(0) * (self.input_formats.count()+2) )
+        for i in range( self.input_formats.count() ):
+            self.input_formats.setCurrentRow(i, QtCore.QItemSelectionModel.SelectionFlag.Select)
         
         #self.output_format = QtWidgets.QComboBox()
         self.output_format = hou.qt.createComboBox() # this is H specific
@@ -74,7 +78,7 @@ class Gui(QtWidgets.QWidget):
         my_dimensions.moveCenter(centerPoint)
         self.move(my_dimensions.topLeft())
 
-        # Add button signals
+        # Add button signalsprint "convert"
         folder_button.fileSelected.connect(self.applyFolderPath)
         button_convert.clicked.connect(self.convert)
         button_cancel.clicked.connect(self.cancel)  
@@ -86,12 +90,20 @@ class Gui(QtWidgets.QWidget):
 
     def convert(self):
         """
-        Greets the user
+        starts batch conversion
         """
-        print "convert"
+        input_formats = self.input_formats.selectedItems()
+        input_formats = [str( item.text() ) for item in input_formats]
+
+        output_format = self.output_format.currentText()
+        output_format = batch_convert.output_formats_dict[output_format]
+        
+        root_path = self.folder_path.text()
+        
+        batch_convert.batchConvert(input_formats=input_formats, output_format_func=output_format, root_path=root_path)
     
     def cancel(self):
         """
-        Cancel button
+        cancel button
         """
         self.close()
