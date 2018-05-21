@@ -8,7 +8,6 @@
   <toolshelf name="batch_convert" label="Batch Convert">
     <memberTool name="reload_batch_convert"/>
     <memberTool name="batch_convert"/>
-    <memberTool name="gui"/>
   </toolshelf>
 
   <tool name="reload_batch_convert" label="Reload" icon="PLASMA_App">
@@ -23,11 +22,7 @@ reload(batch_convert.converters)
   </tool>
 
   <tool name="batch_convert" label="Batch Convert" icon="PLASMA_App">
-    <script scriptType="python"><![CDATA[import batch_convert
-batch_convert.batchConvert()]]></script>
-  </tool>
-
-  <tool name="gui" label="GUI" icon="PLASMA_App">
+    <helpText><![CDATA["""Displays UI for batch conversion of textures"""]]></helpText>
     <script scriptType="python"><![CDATA[import batch_convert
 batch_convert.runGui()]]></script>
   </tool>
