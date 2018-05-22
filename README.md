@@ -35,7 +35,9 @@ Installation
 Usage
 -----
 * Click on **Batch Convert** shelf tool
+* Select a root folder containing textures you want to convert, it will be scanned recursively
 * Select which input texture formats should be converted
     * For example you could convert only jpegs or pngs
 * Select output texture format
+* Set number of parallel proecsses to run
 * Confirm

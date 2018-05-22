@@ -164,12 +164,16 @@ class MainGui(QtWidgets.QWidget):
         """
         stops all threads
         """
-        for proc in self.processes:
-            proc.stop = True
-            proc.quit()
-        
-        for proc in self.processes:
-            proc.wait()
+        try:
+            for proc in self.processes:
+                proc.stop = True
+                proc.quit()
+            
+            for proc in self.processes:
+                proc.wait()
+        except AttributeError:
+            # in case the app closes and no processes were running
+            pass
 
         self.button_stop.setEnabled(False)
         self.progress_text.setText( self.progress_bar.text() + " (stopped)")
