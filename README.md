@@ -11,8 +11,8 @@ Renderers usually convert common texture formats *(jpg, png, tga..)* into more r
 
 It is therefore more efficient to pre-convert them once and let renderers use them.
 
-![Houdini screenshot](./img/screen_hou.png "Houdini screenshot") 
-![Standalone screenshot](./img/screen_standalone.png "Standalone screenshot")
+![Houdini screenshot](./img/screen_hou.png) 
+![Standalone screenshot](./img/screen_standalone.png)
 
 <br>
 Installation
