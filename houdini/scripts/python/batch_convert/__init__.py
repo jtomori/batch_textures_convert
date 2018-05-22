@@ -1,6 +1,5 @@
 import os
 import hou
-import platform
 import subprocess
 from PySide2 import QtCore
 from threading import Thread
@@ -49,15 +48,17 @@ class WorkerThread(QtCore.QThread):
 
                 cmd = self.convert_command(texture_in)
 
-                if platform.system() == "Linux":
-                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-                    out = p.communicate()[0]
-                    print "\nThread #{}".format(self.id)
-                    print "Command: {}".format( " ".join(cmd) )
-                    print "Command output:\n{dashes}\n{out}{dashes}".format(out=out, dashes="-"*50)
-                    print "Return code: {}\n".format(p.returncode)
-                elif platform.system() == "Windows":
-                    pass
+                startupinfo = None
+                if os.name == 'nt':
+                    startupinfo = subprocess.STARTUPINFO()
+                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+                p = subprocess.Popen(cmd, stdout=subprocess.PIPE, startupinfo=startupinfo)
+                out = p.communicate()[0]
+                print "\nThread #{}".format(self.id)
+                print "Command: {}".format( " ".join(cmd) )
+                print "Command output:\n{dashes}\n{out}{dashes}".format(out=out, dashes="-"*50)
+                print "Return code: {}\n".format(p.returncode)
 
                 if not self.stop:
                     self.incSignal.sig.emit()

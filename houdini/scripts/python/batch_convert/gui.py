@@ -42,7 +42,7 @@ class MainGui(QtWidgets.QWidget):
         self.input_formats = QtWidgets.QListWidget()
         self.input_formats.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.input_formats.addItems(self.input_formats_list)
-        self.input_formats.setFixedHeight( self.input_formats.sizeHintForRow(0) * (self.input_formats.count()+3) )
+        self.input_formats.setFixedHeight( self.input_formats.sizeHintForRow(0) * (self.input_formats.count()+4) )
         for i in range( self.input_formats.count() ):
             self.input_formats.setCurrentRow(i, QtCore.QItemSelectionModel.SelectionFlag.Select)
         
@@ -168,9 +168,6 @@ class MainGui(QtWidgets.QWidget):
             for proc in self.processes:
                 proc.stop = True
                 proc.quit()
-            
-            for proc in self.processes:
-                proc.wait()
         except AttributeError:
             # in case the app closes and no processes were running
             pass
