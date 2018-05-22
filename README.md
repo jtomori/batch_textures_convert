@@ -6,7 +6,7 @@ Batch Textures Conversion
 
 Intro
 -----
-This tool helps with pre-processing of textures for offline renderers. 
+This tool helps with pre-processing of textures for offline renderers. It can be used from Houdini or as a standalone application.
 
 Renderers usually convert common texture formats *(jpg, png, tga..)* into more render friendly mip-mapped formats *(rat, rs, tx..)* which can be a time consuming process. Mainly if the renderer discards the converted texture afterwards and this process gets repeated.
 
@@ -30,7 +30,7 @@ Installation
     * Display **Batch Convert** shelf in Houdini
 
     **Standalone**
-    * This tool requires PySide2
+    * This tool requires **PySide2**
     * If missing, then install it for example with **pip**
         ```
         $ pip install --index-url=http://download.qt.io/snapshots/ci/pyside/5.9/latest/ pyside2 --trusted-host download.qt.io
