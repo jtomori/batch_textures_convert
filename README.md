@@ -14,11 +14,6 @@ It is therefore more efficient to pre-convert them once and let renderers use th
 ![Houdini screenshot](./img/screen_hou.png "Houdini screenshot") 
 ![Standalone screenshot](./img/screen_standalone.png "Standalone screenshot")
 
-<p align="center">
-  <img src="./img/screen_houdini.png" width="350"/>
-  <img src="./img/screen_houdini.png" width="350"/>
-</p>
-
 <br>
 Installation
 ------------
