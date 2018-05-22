@@ -1,5 +1,4 @@
 import os
-import hou
 import subprocess
 from PySide2 import QtCore
 from threading import Thread
