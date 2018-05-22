@@ -3,6 +3,7 @@ Batch Textures Conversion
 *Batch convert textures to various render-friendly mip-mapped formats*
 
 <br>
+
 Intro
 -----
 This tool helps with pre-processing of textures for offline renderers. 
@@ -15,6 +16,7 @@ It is therefore more efficient to pre-convert them once and let renderers use th
 ![Standalone screenshot](./img/screen_standalone.png)
 
 <br>
+
 Installation
 ------------
 1. [Download](https://github.com/jtomori/batch_textures_convert/archive/master.zip) or clone this repository.
@@ -35,6 +37,7 @@ Installation
         ````
 
 <br>
+
 Usage
 -----
 * Start the tool
@@ -52,6 +55,7 @@ Usage
 * Confirm
 
 <br>
+
 A few notes
 -----------
 This tool works on Linux and Windows. Feel free to test it under and contribute for OS X version. <br>
