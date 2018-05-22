@@ -1,4 +1,5 @@
 import os
+import time
 import subprocess
 from PySide2 import QtCore
 from threading import Thread
@@ -17,6 +18,7 @@ def runGui():
     """
     dialog = gui.MainGui()
     dialog.show()
+    return dialog
 
 class IncSignal(QtCore.QObject):
     """
@@ -36,9 +38,6 @@ class WorkerThread(QtCore.QThread):
         self.convert_command = convert_command
         self.id = id
         self.stop = False
-    
-    def __del__(self):
-        self.wait()
 
     def run(self):
         while not self.stop:
@@ -97,16 +96,17 @@ def batchConvert(ui_obj, input_formats, output_format_func, root_path, threads):
     proceed = gui.confirm_dialog( str(len(textures)) )
 
     if proceed:
+        # convert list to a queue
+        texturesQueue = Queue(maxsize=0)
+        for x in xrange(len(textures)):
+            texturesQueue.put(textures[x])
+
         ui_obj.progress_bar.setMaximum(len(textures))
         ui_obj.progress_bar.show()
         ui_obj.progress_text.show()
         ui_obj.button_convert.setEnabled(False)
         ui_obj.button_stop.setEnabled(True)
-
-        # convert list to a queue
-        texturesQueue = Queue(maxsize=0)
-        for x in xrange(len(textures)):
-            texturesQueue.put(textures[x])
+        ui_obj.start_conversion_time = time.time()        
 
         print("Spawning {} threads".format(threads))
         ui_obj.processes = []

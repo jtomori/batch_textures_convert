@@ -1,4 +1,4 @@
-import hou
+import os
 import time
 import converters
 import batch_convert
@@ -7,6 +7,12 @@ from PySide2 import QtCore
 from PySide2 import QtGui
 from PySide2 import QtWidgets
 
+try:
+    import hou
+    in_hou = True
+except ImportError:
+    in_hou = False
+
 class MainGui(QtWidgets.QWidget):
     """
     A class specifying graphical user interface of the tool
@@ -14,11 +20,12 @@ class MainGui(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(MainGui, self).__init__(parent)
         
-        self.setParent(hou.ui.mainQtWindow(), QtCore.Qt.Window)
-        self.setProperty("houdiniStyle", True)
+        if in_hou:
+            self.setParent(hou.ui.mainQtWindow(), QtCore.Qt.Window)
+            self.setProperty("houdiniStyle", True)
         
         self.setWindowTitle("Batch texture conversion")
-        self.setMinimumSize(400, 500)
+        self.setMinimumSize(400, 550)
 
         self.input_formats_list = batch_convert.input_formats
         self.output_formats_list = batch_convert.output_formats_dict.keys()
@@ -33,11 +40,15 @@ class MainGui(QtWidgets.QWidget):
         file_label = QtWidgets.QLabel("Select a folder with textures for conversion")
 
         self.folder_path = QtWidgets.QLineEdit()
-        folder_button = hou.qt.createFileChooserButton() # this is H specific
-        folder_button.setFileChooserFilter(hou.fileType.Directory)
-        folder_button.setFileChooserMode(hou.fileChooserMode.Read)
-        folder_button.setFileChooserTitle("Select a folder with textures for conversion")
-        folder_button.setFileChooserStartDirectory( hou.expandString("$JOB") )
+
+        if in_hou:
+            folder_button = hou.qt.createFileChooserButton() # this is H specific
+            folder_button.setFileChooserFilter(hou.fileType.Directory)
+            folder_button.setFileChooserMode(hou.fileChooserMode.Read)
+            folder_button.setFileChooserStartDirectory( hou.expandString("$JOB") )
+            folder_button.setFileChooserTitle("Select a folder with textures for conversion")
+        else:
+            folder_button = QtWidgets.QPushButton("...")
 
         self.input_formats = QtWidgets.QListWidget()
         self.input_formats.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
@@ -46,8 +57,10 @@ class MainGui(QtWidgets.QWidget):
         for i in range( self.input_formats.count() ):
             self.input_formats.setCurrentRow(i, QtCore.QItemSelectionModel.SelectionFlag.Select)
         
-        #self.output_format = QtWidgets.QComboBox()
-        self.output_format = hou.qt.createComboBox() # this is H specific
+        if in_hou:
+            self.output_format = hou.qt.createComboBox() # this is H specific
+        else:
+            self.output_format = QtWidgets.QComboBox()
         self.output_format.addItems(self.output_formats_list)
         
         cpu_threads_max = multiprocessing.cpu_count()
@@ -95,10 +108,10 @@ class MainGui(QtWidgets.QWidget):
         main_layout.addStretch(1)        
         main_layout.addWidget(self.threads_info)
         main_layout.addWidget(self.threads_slider)
-        main_layout.addStretch(2)
+        main_layout.addStretch(1)
         main_layout.addWidget(self.progress_bar)
         main_layout.addWidget(self.progress_text)        
-        main_layout.addStretch(2)        
+        main_layout.addStretch(2)
         main_layout.addLayout(bottom_buttons)
 
         # Set dialog main_layout
@@ -111,19 +124,34 @@ class MainGui(QtWidgets.QWidget):
         self.move(my_dimensions.topLeft())
 
         # Add signals
-        folder_button.fileSelected.connect(self.applyFolderPath)
+        if in_hou:
+            folder_button.fileSelected.connect(self.applyFolderPath)
+        else:
+            folder_button.clicked.connect(self.folder_path_dialog)
         self.progress_bar.valueChanged.connect(self.updateProgressText)
         self.button_convert.clicked.connect(self.convert)
         self.button_stop.clicked.connect(self.stopConversion)
         button_cancel.clicked.connect(self.cancel)
         self.threads_slider.valueChanged.connect(self.updateThreadsCount)
 
+    def folder_path_dialog(self):
+        """
+        updates folder_path label when called from pyside native button
+        """
+        dialog = QtWidgets.QFileDialog(self, "Select a folder with textures for conversion:", os.getenv("HOME"))
+        dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            path = str( dialog.selectedFiles()[0] )
+
+        self.folder_path.setText(path)
+
     @QtCore.Slot(str)
     def applyFolderPath(self, path):
         """
-        updates folder_path label
+        updates folder_path label when called from houdini button
         """
-        path = hou.expandString(path)
+        if in_hou:
+            path = hou.expandString(path)
         self.folder_path.setText(path)
 
     @QtCore.Slot()
@@ -189,7 +217,6 @@ class MainGui(QtWidgets.QWidget):
 
         threads = self.threads_slider.value()
         
-        self.start_conversion_time = time.time()
         batch_convert.batchConvert(ui_obj=self, input_formats=input_formats, output_format_func=output_format_func, root_path=root_path, threads=threads)
         
     def cancel(self):
@@ -208,8 +235,9 @@ def confirm_dialog(tex_count):
     font.setBold( True )
 
     dialog = QtWidgets.QMessageBox()
-    dialog.setParent(hou.ui.mainQtWindow(), QtCore.Qt.Window)
-    dialog.setProperty("houdiniStyle", True)
+    if in_hou:
+        dialog.setParent(hou.ui.mainQtWindow(), QtCore.Qt.Window)
+        dialog.setProperty("houdiniStyle", True)
     dialog.setFont(font)
 
     dialog.setIcon(QtWidgets.QMessageBox.Information)

@@ -2,9 +2,64 @@ Batch Textures Conversion
 =========================
 *Batch convert textures to various render-friendly mip-mapped formats*
 
+<br>
+Intro
+-----
+This tool helps with pre-processing of textures for offline renderers. 
+
+Renderers usually convert common texture formats *(jpg, png, tga..)* into more render friendly mip-mapped formats *(rat, rs, tx..)* which can be a time consuming process. Mainly if the renderer discards the converted texture afterwards and this process gets repeated.
+
+It is therefore more efficient to pre-convert them once and let renderers use them.
+
+![Houdini screenshot](./img/screen_hou.png "Houdini screenshot") 
+![Standalone screenshot](./img/screen_standalone.png "Standalone screenshot")
+
+<p align="center">
+  <img src="./img/screen_houdini.png" width="350"/>
+  <img src="./img/screen_houdini.png" width="350"/>
+</p>
+
+<br>
+Installation
+------------
+1. [Download](https://github.com/jtomori/batch_textures_convert/archive/master.zip) or clone this repository.
+
+2.  **Houdini**
+    * Add this repository folder into your **HOUDINI_PATH** environment variable.
+    * For example add this line into your **houdini.env** file:
+    ```
+    HOUDINI_PATH = &;/path/to/this/repo/
+    ```
+    * Display **Batch Convert** shelf in Houdini
+
+    **Standalone**
+    * This tool requires PySide2
+    * If missing, then install it for example with **pip**
+        ```
+        $ pip install --index-url=http://download.qt.io/snapshots/ci/pyside/5.9/latest/ pyside2 --trusted-host download.qt.io
+        ````
+
+<br>
+Usage
+-----
+* Start the tool
+    * **Houdini**
+        * Click on **Batch Convert** shelf tool
+    *  **Standalone**
+        * *$ python batch_textures_converter.py*
+* Select a root folder containing textures you want to convert, it will be scanned recursively
+* Select which input texture formats should be converted
+    * For example you could convert only jpegs or pngs
+* Select output texture format
+* Set number of parallel proecsses to run
+    * Assign some of your threads for the conversion
+    * Note that it does not scale linearly and at some point you will hit disk/network IO limit
+* Confirm
+
+<br>
 A few notes
 -----------
-This tool works on Linux and Windows. Feel free to contribute with OS X version. <br>
+This tool works on Linux and Windows. Feel free to test it under and contribute for OS X version. <br>
 Right now the following output formats are supported:
 * .rat - Mantra
 * .tx - Arnold / PRMan
@@ -12,32 +67,6 @@ Right now the following output formats are supported:
 
 However it is easy to extend / modify this tool so that it suits your needs. <br>
 
-To add new output format, simply implement a new class in **houdini/scripts/python/batch_convert/converters.py**, which inherits from **GenericCommand()** class. Class is very simple, so it should be straightforward to add your custom output formats. <br>
+To add new output format, simply implement a new class in **scripts/python/batch_convert/converters.py**, which inherits from **GenericCommand()** class. Class is very simple, so it should be straightforward to add your custom output formats. <br>
 
-This tool relies on external executables to perform conversion (e.g. *iconvert* for *RAT*, *maketx* for *TX*...). Make sure that you have them available in your system's **PATH** variable. If an executable is not found, then it will print a warning and will hide it from the options list.
-
-Installation
-------------
-1. [Download](https://github.com/jtomori/batch_textures_convert/archive/master.zip) or clone this repository.
-
-2. Add **houdini** folder from this repository into your **HOUDINI_PATH** environment variable.
-    * For example add this line into your **houdini.env** file:
-    ```
-    HOUDINI_PATH = &;/path/to/this/repo/houdini
-    ```
-    * If you have set your *HOUDINI_PATH* variable already, then use followig line.
-    ```
-    HOUDINI_PATH = $HOUDINI_PATH;/path/to/this/repo/houdini
-    ```
-
-3. Display **Batch Convert** shelf in Houdini
-
-Usage
------
-* Click on **Batch Convert** shelf tool
-* Select a root folder containing textures you want to convert, it will be scanned recursively
-* Select which input texture formats should be converted
-    * For example you could convert only jpegs or pngs
-* Select output texture format
-* Set number of parallel proecsses to run
-* Confirm
+This tool relies on external executables to perform conversion (e.g. *iconvert* for *RAT*, *maketx* for *TX*...). Make sure that you have them available in your system's **PATH** variable. If an executable is not found, then it will print a warning and will hide it from the output formats list.

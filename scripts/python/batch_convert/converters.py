@@ -66,13 +66,13 @@ class Rat(GenericCommand):
         
         return [Rat.executable(), texture_in, texture_out]
 
-class Tx(GenericCommand):
+class TxPRMan(GenericCommand):
     """
-    converts textures for Arnold/PRMan TX format  
+    converts textures for PRMan TX format  
     """
     @staticmethod
     def name():
-        return "TX (Arnold/PRMan)"
+        return "TX (PRMan)"
 
     @staticmethod
     def executable():
@@ -84,7 +84,27 @@ class Tx(GenericCommand):
         texture_out[-1] = "tx"
         texture_out = ".".join(texture_out)
 
-        return [Tx.executable(), "-u", "--oiio", "--checknan", "--filter", "lanczos3", texture_in, "-o", texture_out]
+        return [TxPRMan.executable(), "-u", "--prman", "--checknan", "--filter", "lanczos3", texture_in, "-o", texture_out]
+
+class TxArnold(GenericCommand):
+    """
+    converts textures for Arnold TX format  
+    """
+    @staticmethod
+    def name():
+        return "TX (Arnold)"
+
+    @staticmethod
+    def executable():
+        return "maketx"
+
+    @staticmethod
+    def generateCommand(texture_in):
+        texture_out = texture_in.split(".")
+        texture_out[-1] = "tx"
+        texture_out = ".".join(texture_out)
+
+        return [TxArnold.executable(), "-u", "--oiio", "--checknan", "--filter", "lanczos3", texture_in, "-o", texture_out]
 
 class Rs(GenericCommand):
     """
