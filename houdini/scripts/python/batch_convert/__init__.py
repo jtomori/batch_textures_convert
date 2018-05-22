@@ -1,13 +1,10 @@
 import os
 import hou
-import time
 import platform
 import subprocess
-import multiprocessing
-from Queue import Queue, Empty
-from threading import Thread
-
 from PySide2 import QtCore
+from threading import Thread
+from Queue import Queue, Empty
 
 import gui
 import converters
@@ -40,9 +37,13 @@ class WorkerThread(QtCore.QThread):
         self.queue = queue
         self.convert_command = convert_command
         self.id = id
+        self.stop = False
     
+    def __del__(self):
+        self.wait()
+
     def run(self):
-        while True:
+        while not self.stop:
             try:
                 texture_in = self.queue.get(False)
 
@@ -50,20 +51,28 @@ class WorkerThread(QtCore.QThread):
 
                 if platform.system() == "Linux":
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-                    print " ".join(cmd)
-                    print p.communicate()[0]
+                    out = p.communicate()[0]
+                    print "\nThread #{}".format(self.id)
+                    print "Command: {}".format( " ".join(cmd) )
+                    print "Command output:\n{dashes}\n{out}{dashes}".format(out=out, dashes="-"*50)
+                    print "Return code: {}\n".format(p.returncode)
                 elif platform.system() == "Windows":
                     pass
 
-                self.incSignal.sig.emit()
+                if not self.stop:
+                    self.incSignal.sig.emit()
 
             except Empty:
+                reason = "empty queue"
                 break
 
-        print("Thread #{} done".format(self.id))
+        if self.stop:
+            reason = "stopped"
+
+        print("Thread #{} finished ({})".format(self.id, reason))
         return
 
-def batchConvert(ui_obj, input_formats, output_format_func, root_path):
+def batchConvert(ui_obj, input_formats, output_format_func, root_path, threads):
     """
     finds and converts textures in a specified folder - spawns threads which take textures from a queue
     """
@@ -89,7 +98,10 @@ def batchConvert(ui_obj, input_formats, output_format_func, root_path):
 
     if proceed:
         ui_obj.progress_bar.setMaximum(len(textures))
-        threads = multiprocessing.cpu_count() - 1    
+        ui_obj.progress_bar.show()
+        ui_obj.progress_text.show()
+        ui_obj.button_convert.setEnabled(False)
+        ui_obj.button_stop.setEnabled(True)
 
         # convert list to a queue
         texturesQueue = Queue(maxsize=0)
@@ -104,30 +116,6 @@ def batchConvert(ui_obj, input_formats, output_format_func, root_path):
             ui_obj.processes.append(proc)
 
         for proc in ui_obj.processes:
-            proc.start()
-        
-        ui_obj.button_convert.setEnabled(False)
+            proc.start() 
 
-    return        
-
-    """
-    start_time = time.time()
-    threads = multiprocessing.cpu_count() - 1
-
-    # convert list to a queue
-    texturesQ = Queue(maxsize=0)
-    for x in xrange(len(textures)):
-        texturesQ.put(textures[x])
-
-    # spawn threads with convert function
-    for i in range(threads):
-        worker = Thread(target=workerFunc, args=(texturesQ, output_format_func))
-        worker.setDaemon(True)
-        worker.start()
-
-    # wait until all threads are done
-    #texturesQ.join()
-    msg = "Texture conversion done in {0:.3f} seconds.".format( time.time() - start_time )
-    print msg
-    hou.ui.displayMessage(msg, title="Done")
-    """
+    return

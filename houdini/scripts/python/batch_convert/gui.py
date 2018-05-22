@@ -1,7 +1,8 @@
 import hou
+import time
 import converters
 import batch_convert
-
+import multiprocessing
 from PySide2 import QtCore
 from PySide2 import QtGui
 from PySide2 import QtWidgets
@@ -17,7 +18,7 @@ class MainGui(QtWidgets.QWidget):
         self.setProperty("houdiniStyle", True)
         
         self.setWindowTitle("Batch texture conversion")
-        self.setMinimumSize(400, 450)
+        self.setMinimumSize(400, 500)
 
         self.input_formats_list = batch_convert.input_formats
         self.output_formats_list = batch_convert.output_formats_dict.keys()
@@ -41,7 +42,7 @@ class MainGui(QtWidgets.QWidget):
         self.input_formats = QtWidgets.QListWidget()
         self.input_formats.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.input_formats.addItems(self.input_formats_list)
-        self.input_formats.setFixedHeight( self.input_formats.sizeHintForRow(0) * (self.input_formats.count()+2) )
+        self.input_formats.setFixedHeight( self.input_formats.sizeHintForRow(0) * (self.input_formats.count()+3) )
         for i in range( self.input_formats.count() ):
             self.input_formats.setCurrentRow(i, QtCore.QItemSelectionModel.SelectionFlag.Select)
         
@@ -49,17 +50,31 @@ class MainGui(QtWidgets.QWidget):
         self.output_format = hou.qt.createComboBox() # this is H specific
         self.output_format.addItems(self.output_formats_list)
         
+        cpu_threads_max = multiprocessing.cpu_count()
+        cpu_threads_default = cpu_threads_max / 2
+        self.threads_info = QtWidgets.QLabel("Number of parallel processes: {}".format(str(cpu_threads_default)))
+        self.threads_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.threads_slider.setRange(1, cpu_threads_max)
+        self.threads_slider.setValue(cpu_threads_default)
+        self.threads_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
+        self.threads_slider.setTickInterval(1)
+
         self.progress_bar = QtWidgets.QProgressBar()
         self.progress_bar.setFormat("%p % done (%v / %m textures)")
         self.progress_bar.setValue(0)
         self.progress_bar.setTextVisible(False)
+        self.progress_bar.setMaximum(0)
+        self.progress_bar.hide()
 
         self.progress_text = QtWidgets.QLabel()
         self.progress_text.setAlignment( QtCore.Qt.AlignCenter )
         self.progress_text.setText( self.progress_bar.text() )
+        self.progress_text.hide()
 
         self.button_convert = QtWidgets.QPushButton("Convert")
-        button_cancel = QtWidgets.QPushButton("Cancel")
+        self.button_stop = QtWidgets.QPushButton("Stop")
+        self.button_stop.setEnabled(False)
+        button_cancel = QtWidgets.QPushButton("Close")
         
         # Create assign widgets and layouts
         main_layout.addWidget(file_label)
@@ -72,14 +87,18 @@ class MainGui(QtWidgets.QWidget):
         
         bottom_buttons.addStretch(1)
         bottom_buttons.addWidget(self.button_convert)
+        bottom_buttons.addWidget(self.button_stop)        
         bottom_buttons.addWidget(button_cancel)
 
         main_layout.addLayout(folder_layout)
         main_layout.addLayout(form_layout)
-        main_layout.addStretch(3)
+        main_layout.addStretch(1)        
+        main_layout.addWidget(self.threads_info)
+        main_layout.addWidget(self.threads_slider)
+        main_layout.addStretch(2)
         main_layout.addWidget(self.progress_bar)
         main_layout.addWidget(self.progress_text)        
-        main_layout.addStretch(1)        
+        main_layout.addStretch(2)        
         main_layout.addLayout(bottom_buttons)
 
         # Set dialog main_layout
@@ -91,26 +110,69 @@ class MainGui(QtWidgets.QWidget):
         my_dimensions.moveCenter(centerPoint)
         self.move(my_dimensions.topLeft())
 
-        # Add button signalsprint "convert"
+        # Add signals
         folder_button.fileSelected.connect(self.applyFolderPath)
         self.progress_bar.valueChanged.connect(self.updateProgressText)
         self.button_convert.clicked.connect(self.convert)
-        button_cancel.clicked.connect(self.cancel)  
+        self.button_stop.clicked.connect(self.stopConversion)
+        button_cancel.clicked.connect(self.cancel)
+        self.threads_slider.valueChanged.connect(self.updateThreadsCount)
 
     @QtCore.Slot(str)
     def applyFolderPath(self, path):
+        """
+        updates folder_path label
+        """
         path = hou.expandString(path)
         self.folder_path.setText(path)
 
     @QtCore.Slot()
     def incProgressBar(self):
+        """
+        gets signals from running threads and increments status, after finished, calls finishedConversion()
+        """
+        val_max = self.progress_bar.maximum()
         val = self.progress_bar.value()
         val = val + 1
         self.progress_bar.setValue(val)
 
+        if val == val_max:
+            self.finishedConversion()
+
     @QtCore.Slot(int)
+    def updateThreadsCount(self, threads):
+        """
+        updates threads_info label
+        """
+        self.threads_info.setText("Number of parallel processes: {}".format(str(threads)))
+
+    @QtCore.Slot()
     def updateProgressText(self):
+        """
+        updates progress_text label
+        """
         self.progress_text.setText( self.progress_bar.text() )
+
+    def finishedConversion(self):
+        """
+        this method is called after conversion is finished and shows elapsed time, disables some not-needed-anymore buttons
+        """
+        self.progress_text.setText( self.progress_bar.text() + " in {0:.3f} seconds".format(time.time() - self.start_conversion_time) )
+        self.button_stop.setEnabled(False)
+
+    def stopConversion(self):
+        """
+        stops all threads
+        """
+        for proc in self.processes:
+            proc.stop = True
+            proc.quit()
+        
+        for proc in self.processes:
+            proc.wait()
+
+        self.button_stop.setEnabled(False)
+        self.progress_text.setText( self.progress_bar.text() + " (stopped)")
 
     def convert(self):
         """
@@ -123,13 +185,17 @@ class MainGui(QtWidgets.QWidget):
         output_format_func = batch_convert.output_formats_dict[output_format_func]
         
         root_path = self.folder_path.text()
+
+        threads = self.threads_slider.value()
         
-        batch_convert.batchConvert(ui_obj=self, input_formats=input_formats, output_format_func=output_format_func, root_path=root_path)
+        self.start_conversion_time = time.time()
+        batch_convert.batchConvert(ui_obj=self, input_formats=input_formats, output_format_func=output_format_func, root_path=root_path, threads=threads)
         
     def cancel(self):
         """
         cancel button
         """
+        self.stopConversion()
         self.close()
 
 

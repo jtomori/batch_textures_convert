@@ -96,7 +96,7 @@ class Rs(GenericCommand):
 
     @staticmethod
     def executable():
-        return "TextureProcessor"
+        return "redshiftTextureProcessor"
 
     @staticmethod
     def generateCommand(texture_in):
