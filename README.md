@@ -12,9 +12,7 @@ Renderers usually convert common texture formats *(jpg, png, tga..)* into more r
 
 It is therefore more efficient to pre-convert them once and let renderers use them.
 
-<img src="./img/screen_hou.png" alt="Houdini screenshot" height="300px">
-<img src="./img/screen_ubuntu.png" alt="Ubuntu standalone screenshot" height="300px">
-<img src="./img/screen_win.png" alt="Windows standalone screenshot" height="300px">
+<img src="./img/screen_hou.png" alt="Houdini screenshot" height="300px"> <img src="./img/screen_ubuntu.png" alt="Ubuntu standalone screenshot" height="300px"> <img src="./img/screen_win.png" alt="Windows standalone screenshot" height="300px">
 
 <br>
 
