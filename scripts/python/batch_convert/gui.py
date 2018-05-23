@@ -40,7 +40,7 @@ class MainGui(QtWidgets.QWidget):
         file_label = QtWidgets.QLabel("Select a folder with textures for conversion")
 
         self.folder_path = QtWidgets.QLineEdit()
-
+        
         if in_hou:
             folder_button = hou.qt.createFileChooserButton() # this is H specific
             folder_button.setFileChooserFilter(hou.fileType.Directory)
@@ -138,12 +138,17 @@ class MainGui(QtWidgets.QWidget):
         """
         updates folder_path label when called from pyside native button
         """
-        dialog = QtWidgets.QFileDialog(self, "Select a folder with textures for conversion:", os.getenv("HOME"))
+        if self.folder_path.text() == "":
+            default_path = os.getenv("HOME")
+        else:
+            default_path = self.folder_path.text()
+        
+        dialog = QtWidgets.QFileDialog(self, "Select a folder with textures for conversion:", default_path)
         dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
+
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
             path = str( dialog.selectedFiles()[0] )
-
-        self.folder_path.setText(path)
+            self.folder_path.setText(path)
 
     @QtCore.Slot(str)
     def applyFolderPath(self, path):
@@ -152,7 +157,8 @@ class MainGui(QtWidgets.QWidget):
         """
         if in_hou:
             path = hou.expandString(path)
-        self.folder_path.setText(path)
+            if path != "":
+                self.folder_path.setText(path)
 
     @QtCore.Slot()
     def incProgressBar(self):

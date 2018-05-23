@@ -12,8 +12,9 @@ Renderers usually convert common texture formats *(jpg, png, tga..)* into more r
 
 It is therefore more efficient to pre-convert them once and let renderers use them.
 
-![Houdini screenshot](./img/screen_hou.png) 
-![Standalone screenshot](./img/screen_standalone.png)
+![Houdini screenshot](./img/screen_hou.png)
+![Ubuntu standalone screenshot](./img/screen_ubuntu.png)
+![Windows standalone screenshot](./img/screen_win.png) 
 
 <br>
 
@@ -31,10 +32,10 @@ Installation
 
     **Standalone**
     * This tool requires **PySide2**
-    * If missing, then install it for example with **pip**
+    * If missing, then install it for example with **pip** *(Linux and Windows)*
         ```
-        $ pip install --index-url=http://download.qt.io/snapshots/ci/pyside/5.9/latest/ pyside2 --trusted-host download.qt.io
-        ````
+        $ python -m pip install --index-url=http://download.qt.io/snapshots/ci/pyside/5.9/latest/ pyside2 --trusted-host download.qt.io
+        ```
 
 <br>
 
@@ -44,7 +45,7 @@ Usage
     * **Houdini**
         * Click on **Batch Convert** shelf tool
     *  **Standalone**
-        * *$ python batch_textures_converter.py*
+        * `$ python batch_textures_converter.py`
 * Select a root folder containing textures you want to convert, it will be scanned recursively
 * Select which input texture formats should be converted
     * For example you could convert only jpegs or pngs

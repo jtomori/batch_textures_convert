@@ -5,11 +5,6 @@
  Note, that two definitions of the same element are not allowed in
  a single file. -->
 
-  <toolshelf name="batch_convert" label="Batch Convert">
-    <memberTool name="reload_batch_convert"/>
-    <memberTool name="batch_convert"/>
-  </toolshelf>
-
   <tool name="reload_batch_convert" label="Reload" icon="PLASMA_App">
     <helpText><![CDATA[""" Reloads batch_convert python module """]]></helpText>
     <script scriptType="python"><![CDATA[import batch_convert
@@ -26,4 +21,8 @@ reload(batch_convert.converters)
     <script scriptType="python"><![CDATA[import batch_convert
 batch_convert.runGui()]]></script>
   </tool>
+
+  <toolshelf name="batch_convert" label="Batch Convert">
+    <memberTool name="batch_convert"/>
+  </toolshelf>
 </shelfDocument>
