@@ -19,6 +19,8 @@ It is therefore more efficient to pre-convert them once and let renderers use th
 
 *Screenshots from Houdini, Ubuntu standalone, Windows standalone, Maya*
 
+You can see video of this tool [here](https://www.youtube.com/watch?v=5-p3__vsktg).
+
 <br>
 
 Installation
