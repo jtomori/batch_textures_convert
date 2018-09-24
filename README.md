@@ -68,7 +68,7 @@ Usage
 * Select which input texture formats should be converted
     * For example you could convert only jpegs or pngs
 * Select output texture format
-* Set number of parallel proecsses to be run
+* Set number of parallel processes to be run
     * Note that it does not scale linearly and at some point you will hit disk/network IO limit
 * Confirm
 
