@@ -11,12 +11,14 @@ import converters
 # globals for this module
 input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr"]
 output_formats_dict = converters.GenericCommand.getValidChildCommands()
+paths_separator = " /// "
 
-def runGui():
+def runGui(path=None):
     """
-    displays the main gui
+    displays the main gui,
+    path parameter is a string which will set folder path
     """
-    dialog = gui.MainGui()
+    dialog = gui.MainGui(path=path)
     dialog.show()
     return dialog
 
@@ -84,16 +86,20 @@ def batchConvert(ui_obj, input_formats, output_format_func, root_path, threads):
         print("No Input formats selected")
         return
 
-    root_path = os.path.normpath(root_path)
-
     textures = []
 
-    for root, dirs, files in os.walk(root_path):
-        for file in files:
-            if file.lower().endswith( tuple(input_formats) ):
-                textures.append(os.path.join(root, file))
+    root_path = root_path.split(paths_separator)
+
+    for path in root_path:
+        path = os.path.normpath(path)
+
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                if file.lower().endswith( tuple(input_formats) ):
+                    textures.append(os.path.join(root, file))
     
-    proceed = gui.confirm_dialog( str(len(textures)) )
+    textures = list( set(textures) )
+    proceed = gui.confirmDialog( str(len(textures)) )
 
     if proceed:
         # convert list to a queue

@@ -17,18 +17,19 @@ class MainGui(QtWidgets.QWidget):
     """
     A class specifying graphical user interface of the tool
     """
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, path=None):
         super(MainGui, self).__init__(parent)
         
         if in_hou:
             self.setParent(hou.ui.mainQtWindow(), QtCore.Qt.Window)
             self.setProperty("houdiniStyle", True)
-        
+
         self.setWindowTitle("Batch texture conversion")
         self.setMinimumSize(400, 550)
 
         self.input_formats_list = batch_convert.input_formats
         self.output_formats_list = batch_convert.output_formats_dict.keys()
+        self.paths_separator = batch_convert.paths_separator
 
         # create layouts
         main_layout = QtWidgets.QVBoxLayout()
@@ -37,25 +38,35 @@ class MainGui(QtWidgets.QWidget):
         bottom_buttons = QtWidgets.QHBoxLayout()
 
         # Create widgets
-        file_label = QtWidgets.QLabel("Select a folder with textures for conversion")
+        file_label = QtWidgets.QLabel("Select folders with textures for conversion")
 
         self.folder_path = QtWidgets.QLineEdit()
+
+        if path:
+            self.folder_path.setText(path)
         
         if in_hou:
-            folder_button = hou.qt.createFileChooserButton() # this is H specific
-            folder_button.setFileChooserFilter(hou.fileType.Directory)
-            folder_button.setFileChooserMode(hou.fileChooserMode.Read)
-            folder_button.setFileChooserStartDirectory( hou.expandString("$JOB") )
-            folder_button.setFileChooserTitle("Select a folder with textures for conversion")
+            self.folder_button = hou.qt.createFileChooserButton() # this is H specific
+            self.folder_button.setFileChooserFilter(hou.fileType.Directory)
+            self.folder_button.setFileChooserMode(hou.fileChooserMode.Read)
+            self.folder_button.setFileChooserTitle("Select a folder with textures for conversion")
+            self.folder_button.setFileChooserMultipleSelect(True)
+            if path:
+                self.folder_button.setFileChooserStartDirectory( path )
+            else:
+                self.folder_button.setFileChooserStartDirectory( hou.expandString("$JOB") )
         else:
-            folder_button = QtWidgets.QPushButton("...")
+            self.folder_button = QtWidgets.QPushButton("...")
 
         self.input_formats = QtWidgets.QListWidget()
         self.input_formats.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.input_formats.addItems(self.input_formats_list)
         self.input_formats.setFixedHeight( self.input_formats.sizeHintForRow(0) * (self.input_formats.count()+4) )
         for i in range( self.input_formats.count() ):
-            self.input_formats.setCurrentRow(i, QtCore.QItemSelectionModel.SelectionFlag.Select)
+            selected_options = [".jpg", ".jpeg", ".exr"]
+            current_item = self.input_formats.item(i).text()
+            if current_item in selected_options:
+                self.input_formats.setCurrentRow(i, QtCore.QItemSelectionModel.SelectionFlag.Select)
         
         if in_hou:
             self.output_format = hou.qt.createComboBox() # this is H specific
@@ -64,7 +75,7 @@ class MainGui(QtWidgets.QWidget):
         self.output_format.addItems(self.output_formats_list)
         
         cpu_threads_max = multiprocessing.cpu_count()
-        cpu_threads_default = cpu_threads_max / 2
+        cpu_threads_default = cpu_threads_max / 3
         self.threads_info = QtWidgets.QLabel("Number of parallel processes: {}".format(str(cpu_threads_default)))
         self.threads_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.threads_slider.setRange(1, cpu_threads_max)
@@ -93,7 +104,7 @@ class MainGui(QtWidgets.QWidget):
         main_layout.addWidget(file_label)
         
         folder_layout.addWidget(self.folder_path)
-        folder_layout.addWidget(folder_button)
+        folder_layout.addWidget(self.folder_button)
         
         form_layout.addRow("Input Formats", self.input_formats)
         form_layout.addRow("Output Format", self.output_format)
@@ -125,40 +136,55 @@ class MainGui(QtWidgets.QWidget):
 
         # Add signals
         if in_hou:
-            folder_button.fileSelected.connect(self.applyFolderPath)
+            self.folder_button.fileSelected.connect(self.applyFolderPathHou)
         else:
-            folder_button.clicked.connect(self.folder_path_dialog)
+            self.folder_button.clicked.connect(self.folderPathDialog)
         self.progress_bar.valueChanged.connect(self.updateProgressText)
         self.button_convert.clicked.connect(self.convert)
         self.button_stop.clicked.connect(self.stopConversion)
         button_cancel.clicked.connect(self.cancel)
         self.threads_slider.valueChanged.connect(self.updateThreadsCount)
 
-    def folder_path_dialog(self):
+    def folderPathDialog(self):
         """
         updates folder_path label when called from pyside native button
+
+        link to explanation on how to enable multiple directories selection:
+            https://stackoverflow.com/questions/38252419/qt-get-qfiledialog-to-select-and-return-multiple-folders
         """
         if self.folder_path.text() == "":
             default_path = os.getenv("HOME")
         else:
-            default_path = self.folder_path.text()
+            default_path = self.folder_path.text().split(self.paths_separator)[0]
         
         dialog = QtWidgets.QFileDialog(self, "Select a folder with textures for conversion:", default_path)
-        dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
+        dialog.setFileMode(QtWidgets.QFileDialog.Directory)
 
+        # don't use native dialog, enable multiple dir selection
+        dialog.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
+        file_view = dialog.findChild(QtWidgets.QListView, 'listView')
+        f_tree_view = dialog.findChild(QtWidgets.QTreeView)
+
+        if file_view:
+            file_view.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
+        if f_tree_view:
+            f_tree_view.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
+
+        # exec dialog
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
-            path = str( dialog.selectedFiles()[0] )
+            path = str( self.paths_separator.join( dialog.selectedFiles() ) )
             self.folder_path.setText(path)
 
     @QtCore.Slot(str)
-    def applyFolderPath(self, path):
+    def applyFolderPathHou(self, path):
         """
         updates folder_path label when called from houdini button
         """
         if in_hou:
             path = hou.expandString(path)
             if path != "":
-                self.folder_path.setText(path)
+                self.folder_path.setText(path.replace(" ; ", self.paths_separator))
+                self.folder_button.setFileChooserStartDirectory(path.split(self.paths_separator)[0])
 
     @QtCore.Slot()
     def incProgressBar(self):
@@ -233,7 +259,7 @@ class MainGui(QtWidgets.QWidget):
         self.close()
 
 
-def confirm_dialog(tex_count):
+def confirmDialog(tex_count):
     """
     displays a confirmation dialog (with info about amount of found textures) for starting texture conversion process
     """
