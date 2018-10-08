@@ -4,14 +4,38 @@ import subprocess
 from PySide2 import QtCore
 from threading import Thread
 from Queue import Queue, Empty
+from collections import defaultdict
 
 import gui
 import converters
 
 # globals for this module
 input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr"]
+default_selected_formats = [".jpg", ".jpeg", ".exr"]
+ext_priority = ["jpg", "png", "exr"]
 output_formats_dict = converters.GenericCommand.getValidChildCommands()
 paths_separator = " /// "
+
+def getBestTextureFormat(ext_list, tex_list):
+    """
+    returns index to a texture from tex_list which has the highest priority in ext_list
+    if none of texture extensions is in ext_list, will return None
+    
+    ext_list
+        is list of extensions in ascending order (the latter, the higher priority), e.g.:
+        ["jpg", "tif", "png", "exr", "rat"]
+    """
+    extensions = tex_list
+    
+    idx = -1
+    for ext in ext_list:
+        if ext in extensions:
+            idx = extensions.index(ext)
+    
+    if idx != -1:
+        return idx
+    else:
+        return None
 
 def runGui(path=None):
     """
@@ -99,6 +123,30 @@ def batchConvert(ui_obj, input_formats, output_format_func, root_path, threads):
                     textures.append(os.path.join(root, file))
     
     textures = list( set(textures) )
+
+    # select the best texture available (prefer exr to jpg if filename and path are the same)
+    textures_no_ext = [tex.split(".")[0] for tex in textures]
+    duplicates = defaultdict(list)
+
+    for i,item in enumerate(textures_no_ext):
+        duplicates[item].append(i)
+
+    duplicates = {key:value for key, value in duplicates.items() if len(value)>1}
+
+    remove_indices = []
+    for key, value in duplicates.iteritems():
+        dict_replace = {}
+        dict_replace["indices"] = value # points to elements of texture list
+        dict_replace["extensions"] = [textures[idx].split(".")[-1] for idx in value]
+        dict_replace["best_ext_index"] = dict_replace["indices"][ getBestTextureFormat(ext_priority, dict_replace["extensions"]) ]
+        dict_replace["remove_indices"] = [i for i in dict_replace["indices"] if i != dict_replace["best_ext_index"]]
+        for i in dict_replace["remove_indices"]:
+            remove_indices.append(i)
+
+        duplicates[key] = dict_replace
+
+    textures = [tex for i, tex in enumerate(textures) if i not in remove_indices]
+    
     proceed = gui.confirmDialog( str(len(textures)) )
 
     if proceed:

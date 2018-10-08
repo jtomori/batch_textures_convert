@@ -64,6 +64,7 @@ Usage
         ```
     *  **Standalone**
         * `$ python batch_textures_converter.py`
+            * you can specify optional `--path` argument, which will set folder path (see `$ python batch_textures_converter.py --help` for help)
 * Select a root folder containing textures you want to convert, it will be scanned recursively
     * You can also select/copypaste multiple folders, they will be separated with `" /// "`
 * Select which input texture formats should be converted
@@ -92,6 +93,8 @@ A few notes
 * This tool relies on external executables to perform conversion (e.g. *iconvert* for *RAT*, *maketx* for *TX*...). Make sure that you have them available in your system's **PATH** variable. If an executable is not found, then it will print a warning and will hide it from the output formats list in gui.
 
 * `batch_convert.runGui()` takes one optional argument: `path`, use it setting default folder path
+
+* if there are multiple textures with the same name, but different extensions, the tool will pick the one with the highest priority, as specified in `ext_priority` list in `__init__.py`
 
 <br>
 

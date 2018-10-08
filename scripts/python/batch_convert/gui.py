@@ -30,6 +30,7 @@ class MainGui(QtWidgets.QWidget):
         self.input_formats_list = batch_convert.input_formats
         self.output_formats_list = batch_convert.output_formats_dict.keys()
         self.paths_separator = batch_convert.paths_separator
+        self.default_selected_formats = batch_convert.default_selected_formats
 
         # create layouts
         main_layout = QtWidgets.QVBoxLayout()
@@ -63,7 +64,7 @@ class MainGui(QtWidgets.QWidget):
         self.input_formats.addItems(self.input_formats_list)
         self.input_formats.setFixedHeight( self.input_formats.sizeHintForRow(0) * (self.input_formats.count()+4) )
         for i in range( self.input_formats.count() ):
-            selected_options = [".jpg", ".jpeg", ".exr"]
+            selected_options = self.default_selected_formats
             current_item = self.input_formats.item(i).text()
             if current_item in selected_options:
                 self.input_formats.setCurrentRow(i, QtCore.QItemSelectionModel.SelectionFlag.Select)
