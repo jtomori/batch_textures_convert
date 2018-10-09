@@ -13,10 +13,15 @@
                 <label>Batch textures convert</label>
                 <scriptCode>
 <![CDATA[
+import os
 import batch_convert
 
 path = kwargs["parms"][0].eval()
-batch_convert.runGui(path=path)
+if path != "":
+    path = hou.expandString(path)
+    path = os.path.normpath(path)
+    path = os.path.dirname(path)
+    batch_convert.runGui(path=path)
 ]]>
                 </scriptCode>
             </scriptItem>
