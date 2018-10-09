@@ -16,5 +16,5 @@ import batch_convert
 
 if __name__=='__main__':
     app = QtWidgets.QApplication(sys.argv)
-    window = batch_convert.runGui(args.path)
+    window = batch_convert.runGui(path=args.path)
     sys.exit(app.exec_())

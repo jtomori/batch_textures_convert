@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<menuDocument>
+    <menu>
+        <subMenu id="open_in">
+            <label>Open in...</label>
+            <insertBefore />
+            <context>
+		        <expression>len(kwargs["parms"]) > 0 and kwargs["parms"][0].parmTemplate().type().name() == "String"</expression>
+	        </context>
+            <scriptItem id="batch_tex_convert">
+                <insertAfter />
+                <label>Batch textures convert</label>
+                <scriptCode>
+<![CDATA[
+import batch_convert
+
+path = kwargs["parms"][0].eval()
+batch_convert.runGui(path=path)
+]]>
+                </scriptCode>
+            </scriptItem>
+        </subMenu>
+    </menu>
+</menuDocument>

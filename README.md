@@ -55,7 +55,11 @@ Usage
 -----
 * Start the tool
     * **Houdini**
-        * Click on **Batch Convert** shelf tool
+        * There are two ways of running the tool:
+            1. Click on **Batch Convert** shelf tool
+            2. Right-click on string parameter containing texture path
+                * <img src="./img/screen_menu.jpg" alt="Houdini screenshot" height="300px">
+                * [Tutorial explaining this menu](https://jurajtomori.wordpress.com/2018/05/24/houdini-tip-open-parameter-path-in-file-browser/)
     * **Maya**
         * Run the following script from script editor or as a shelf tool
         ```
