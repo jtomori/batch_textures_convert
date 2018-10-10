@@ -112,7 +112,7 @@ class Rs(GenericCommand):
     """
     @staticmethod
     def name():
-        return "RS (Redshift)"
+        return "RSTEXBIN (Redshift), skip converted"
 
     @staticmethod
     def executable():
@@ -122,3 +122,20 @@ class Rs(GenericCommand):
     def generateCommand(texture_in):
 
         return [Rs.executable(), texture_in]
+
+class RsNoSkip(GenericCommand):
+    """
+    converts textures for Redshift RS format, disables checking for already converted textures
+    """
+    @staticmethod
+    def name():
+        return "RSTEXBIN (Redshift), overwrite converted"
+
+    @staticmethod
+    def executable():
+        return "redshiftTextureProcessor"
+
+    @staticmethod
+    def generateCommand(texture_in):
+
+        return [Rs.executable(), texture_in, "-noskip"]

@@ -28,9 +28,10 @@ class MainGui(QtWidgets.QWidget):
         self.setMinimumSize(400, 550)
 
         self.input_formats_list = batch_convert.input_formats
-        self.output_formats_list = batch_convert.output_formats_dict.keys()
+        self.output_formats_list = sorted(batch_convert.output_formats_dict.keys())
         self.paths_separator = batch_convert.paths_separator
         self.default_selected_formats = batch_convert.default_selected_formats
+        self.default_output_format = batch_convert.default_output_format
 
         # create layouts
         main_layout = QtWidgets.QVBoxLayout()
@@ -74,6 +75,12 @@ class MainGui(QtWidgets.QWidget):
         else:
             self.output_format = QtWidgets.QComboBox()
         self.output_format.addItems(self.output_formats_list)
+        try:
+            default_idx = self.output_formats_list.index(self.default_output_format)
+            self.output_format.setCurrentIndex(default_idx)
+        except ValueError:
+            print "Default output format option is not available, skipping default selection"
+            pass
         
         cpu_threads_max = multiprocessing.cpu_count()
         cpu_threads_default = cpu_threads_max / 3

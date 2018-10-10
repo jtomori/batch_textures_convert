@@ -98,7 +98,9 @@ A few notes
 
 * `batch_convert.runGui()` takes one optional argument: `path`, use it setting default folder path
 
-* if there are multiple textures with the same name, but different extensions, the tool will pick the one with the highest priority, as specified in `ext_priority` list in `__init__.py`
+* If there are multiple textures with the same name, but different extensions, the tool will pick the one with the highest priority, as specified in `ext_priority` list in `__init__.py`
+
+* Check beggining of `__init__.py` for configuration
 
 <br>
 

@@ -9,12 +9,14 @@ from collections import defaultdict
 import gui
 import converters
 
-# globals for this module
+# config
 input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr"]
 default_selected_formats = [".jpg", ".jpeg", ".exr"]
+default_output_format = "RSTEXBIN (Redshift), skip converted"
 ext_priority = ["jpg", "png", "exr"]
-output_formats_dict = converters.GenericCommand.getValidChildCommands()
 paths_separator = " /// "
+
+output_formats_dict = converters.GenericCommand.getValidChildCommands()
 
 def getBestTextureFormat(ext_list, tex_list):
     """
