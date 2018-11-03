@@ -46,7 +46,7 @@ Installation
     * This tool requires **PySide2**
     * If missing, then install it for example with **pip**
         ```
-        $ python -m pip install --index-url=http://download.qt.io/snapshots/ci/pyside/5.9/latest/ pyside2 --trusted-host download.qt.io
+        $ python -m pip install pyside2
         ```
 
 <br>

@@ -127,7 +127,7 @@ def batchConvert(ui_obj, input_formats, output_format_func, root_path, threads):
     textures = list( set(textures) )
 
     # select the best texture available (prefer exr to jpg if filename and path are the same)
-    textures_no_ext = [tex.split(".")[0] for tex in textures]
+    textures_no_ext = [".".join(tex.split(".")[:-1]) for tex in textures]
     duplicates = defaultdict(list)
 
     for i,item in enumerate(textures_no_ext):
