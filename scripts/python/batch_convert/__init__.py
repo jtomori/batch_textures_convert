@@ -13,7 +13,7 @@ import converters
 input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr", ".cr2"]
 default_selected_formats = [".jpg", ".jpeg", ".exr"]
 default_output_format = "RSTEXBIN (Redshift), skip converted"
-ext_priority = ["jpg", "png", "exr"]
+ext_priority = ["jpg", "png", "cr2", "exr"]
 paths_separator = " /// "
 
 output_formats_dict = converters.GenericCommand.getValidChildCommands()
@@ -39,12 +39,12 @@ def getBestTextureFormat(ext_list, tex_list):
     else:
         return None
 
-def runGui(path=None):
+def runGui(path=None, parent=None):
     """
     displays the main gui,
     path parameter is a string which will set folder path
     """
-    dialog = gui.MainGui(path=path)
+    dialog = gui.MainGui(path=path, parent=parent)
     dialog.show()
     return dialog
 
