@@ -31,7 +31,7 @@ def getBestTextureFormat(ext_list, tex_list):
     
     idx = -1
     for ext in ext_list:
-        if ext in extensions:
+        if ext.lower() in extensions:
             idx = extensions.index(ext)
     
     if idx != -1:
