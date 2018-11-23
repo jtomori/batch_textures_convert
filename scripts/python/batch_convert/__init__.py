@@ -10,7 +10,7 @@ import gui
 import converters
 
 # config
-input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr"]
+input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr", ".cr2"]
 default_selected_formats = [".jpg", ".jpeg", ".exr"]
 default_output_format = "RSTEXBIN (Redshift), skip converted"
 ext_priority = ["jpg", "png", "exr"]

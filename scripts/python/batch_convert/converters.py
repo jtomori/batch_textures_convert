@@ -120,7 +120,6 @@ class Rs(GenericCommand):
 
     @staticmethod
     def generateCommand(texture_in):
-
         return [Rs.executable(), texture_in]
 
 class RsNoSkip(GenericCommand):
@@ -137,5 +136,20 @@ class RsNoSkip(GenericCommand):
 
     @staticmethod
     def generateCommand(texture_in):
+        return [RsNoSkip.executable(), texture_in, "-noskip"]
 
-        return [Rs.executable(), texture_in, "-noskip"]
+class Dcraw(GenericCommand):
+    """
+    converts raw photos using dcraw utility into linear TIFF pictures in ACES2065-1 colorspace
+    """
+    @staticmethod
+    def name():
+        return "TIFF (dcraw, linear, ACES2065-1)"
+
+    @staticmethod
+    def executable():
+        return "dcraw"
+
+    @staticmethod
+    def generateCommand(texture_in):
+        return [Dcraw.executable(), "-4", "-T", "-v", "-o", "6", texture_in]
