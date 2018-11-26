@@ -12,7 +12,7 @@ import converters
 # config
 input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr", ".cr2"]
 default_selected_formats = [".jpg", ".jpeg", ".exr"]
-default_output_format = "RSTEXBIN (Redshift), skip converted"
+default_output_format = "RSTEXBIN (Redshift, skip converted)"
 ext_priority = ["jpg", "png", "cr2", "exr"]
 paths_separator = " /// "
 
@@ -79,12 +79,15 @@ class WorkerThread(QtCore.QThread):
                     startupinfo = subprocess.STARTUPINFO()
                     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-                p = subprocess.Popen(cmd, stdout=subprocess.PIPE, startupinfo=startupinfo)
-                out = p.communicate()[0]
-                print "\nThread #{}".format(self.id)
-                print "Command: {}".format( " ".join(cmd) )
-                print "Command output:\n{dashes}\n{out}{dashes}".format(out=out, dashes="-"*50)
-                print "Return code: {}\n".format(p.returncode)
+                if cmd:
+                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, startupinfo=startupinfo)
+                    out = p.communicate()[0]
+                    print "\nThread #{}".format(self.id)
+                    print "Command: {}".format( " ".join(cmd) )
+                    print "Command output:\n{dashes}\n{out}{dashes}".format(out=out, dashes="-"*50)
+                    print "Return code: {}\n".format(p.returncode)
+                else:
+                    print "Cmd is None, skipping..."
 
                 if not self.stop:
                     self.incSignal.sig.emit()

@@ -1,3 +1,5 @@
+import re
+import os
 import abc
 import distutils.spawn
 
@@ -25,6 +27,7 @@ class GenericCommand(object):
     def generateCommand(self):
         """
         should return a list containing command and arguments
+        if some reason conversion shouldn't happend, then returns None
         """
         pass
     
@@ -112,7 +115,7 @@ class Rs(GenericCommand):
     """
     @staticmethod
     def name():
-        return "RSTEXBIN (Redshift), skip converted"
+        return "RSTEXBIN (Redshift, skip converted)"
 
     @staticmethod
     def executable():
@@ -128,7 +131,7 @@ class RsNoSkip(GenericCommand):
     """
     @staticmethod
     def name():
-        return "RSTEXBIN (Redshift), overwrite converted"
+        return "RSTEXBIN (Redshift, overwrite converted)"
 
     @staticmethod
     def executable():
@@ -153,3 +156,72 @@ class Dcraw(GenericCommand):
     @staticmethod
     def generateCommand(texture_in):
         return [Dcraw.executable(), "-4", "-T", "-v", "-o", "6", texture_in]
+
+class Exr1K(GenericCommand):
+    """
+    converts and scales image into OpenEXR format, it is expecting "_*K_" tag in file name, which will be replaced with "_1K_"
+    """
+    @staticmethod
+    def name():
+        return "EXR (1K, box, skip converted)"
+
+    @staticmethod
+    def executable():
+        return "oiiotool"
+
+    @staticmethod
+    def generateCommand(texture_in):
+        in_dir, in_file = os.path.split(texture_in)
+        out_file = re.sub('_[0-9]K_', "_1K_", in_file)
+        texture_out = os.path.join(in_dir, out_file)
+
+        if texture_in != texture_out:
+            return [Exr1K.executable(), texture_in, "-v", "--resize:filter=box", "1024x1024", "--no-clobber", "-o", texture_out]
+        else:
+            return None
+
+class Exr2K(GenericCommand):
+    """
+    converts and scales image into OpenEXR format, it is expecting "_*K_" tag in file name, which will be replaced with "_2K_"
+    """
+    @staticmethod
+    def name():
+        return "EXR (2K, box, skip converted)"
+
+    @staticmethod
+    def executable():
+        return "oiiotool"
+
+    @staticmethod
+    def generateCommand(texture_in):
+        in_dir, in_file = os.path.split(texture_in)
+        out_file = re.sub('_[0-9]K_', "_2K_", in_file)
+        texture_out = os.path.join(in_dir, out_file)
+
+        if texture_in != texture_out:
+            return [Exr1K.executable(), texture_in, "-v", "--resize:filter=box", "2048x2048", "--no-clobber", "-o", texture_out]
+        else:
+            return None
+
+class Exr4K(GenericCommand):
+    """
+    converts and scales image into OpenEXR format, it is expecting "_*K_" tag in file name, which will be replaced with "_4K_"
+    """
+    @staticmethod
+    def name():
+        return "EXR (4K, box, skip converted)"
+
+    @staticmethod
+    def executable():
+        return "oiiotool"
+
+    @staticmethod
+    def generateCommand(texture_in):
+        in_dir, in_file = os.path.split(texture_in)
+        out_file = re.sub('_[0-9]K_', "_4K_", in_file)
+        texture_out = os.path.join(in_dir, out_file)
+
+        if texture_in != texture_out:
+            return [Exr1K.executable(), texture_in, "-v", "--resize:filter=box", "4096x4096", "--no-clobber", "-o", texture_out]
+        else:
+            return None
