@@ -18,7 +18,7 @@ paths_separator = " /// "
 
 output_formats_dict = converters.GenericCommand.getValidChildCommands()
 
-def getBestTextureFormat(ext_list, tex_list):
+def getBestTextureFormat(ext_list, extensions):
     """
     returns index to a texture from tex_list which has the highest priority in ext_list
     if none of texture extensions is in ext_list, will return None
@@ -26,9 +26,7 @@ def getBestTextureFormat(ext_list, tex_list):
     ext_list
         is list of extensions in ascending order (the latter, the higher priority), e.g.:
         ["jpg", "tif", "png", "exr", "rat"]
-    """
-    extensions = tex_list
-    
+    """    
     idx = -1
     for ext in ext_list:
         if ext.lower() in extensions:
