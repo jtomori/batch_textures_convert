@@ -99,13 +99,14 @@ A few notes
 * This tool works on Linux and Windows. Feel free to test it under and contribute for OS X version.
     Right now the following output formats are supported:
     
-    * .rat - Mantra
-    * .tx - Arnold
-    * .tx - PRMan
-    * .rs - Redshift
-    * .tiff - Dcraw
+    * .rat - Mantra (iconvert)
+    * .tx - Arnold (maketx)
+    * .tx - PRMan (maketx)
+    * .rs - Redshift (redshiftTextureProcessor)
+    * .tiff - Dcraw (dcraw)
+    * .exr - OpenImageIO (oiiotool)
     
-    However it is easy to extend / modify this tool so that it suits your needs.
+    However it is easy to extend / modify this tool so that it suits your needs. Note that those are only presets. Those tools can handle more formats and can be customized for different cases. Check man pages of the tools for more information.
 
 * To add new output format, simply implement a new class in **scripts/python/batch_convert/converters.py**, which inherits from **GenericCommand()** class. Class is very simple, so it should be straightforward to add your custom output formats.
 
