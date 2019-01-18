@@ -157,13 +157,13 @@ class Dcraw(GenericCommand):
     def generateCommand(texture_in):
         return [Dcraw.executable(), "-4", "-T", "-v", "-o", "6", texture_in]
 
-class Exr1K(GenericCommand):
+class Resize1K(GenericCommand):
     """
-    converts and scales image into OpenEXR format, it is expecting "_*K_" tag in file name, which will be replaced with "_1K_"
+    scales image, it is expecting "_*K_" tag in file name, which will be replaced with "_1K_"
     """
     @staticmethod
     def name():
-        return "EXR (1K, box, skip converted)"
+        return "Resize (1K, box, skip converted)"
 
     @staticmethod
     def executable():
@@ -176,17 +176,17 @@ class Exr1K(GenericCommand):
         texture_out = os.path.join(in_dir, out_file)
 
         if texture_in != texture_out:
-            return [Exr1K.executable(), texture_in, "-v", "--resize:filter=box", "1024x1024", "--no-clobber", "-o", texture_out]
+            return [Resize1K.executable(), texture_in, "-v", "--resize:filter=box", "1024x1024", "--no-clobber", "-o", texture_out]
         else:
             return None
 
-class Exr2K(GenericCommand):
+class Resize2K(GenericCommand):
     """
-    converts and scales image into OpenEXR format, it is expecting "_*K_" tag in file name, which will be replaced with "_2K_"
+    scales image, it is expecting "_*K_" tag in file name, which will be replaced with "_2K_"
     """
     @staticmethod
     def name():
-        return "EXR (2K, box, skip converted)"
+        return "Resize (2K, box, skip converted)"
 
     @staticmethod
     def executable():
@@ -199,17 +199,17 @@ class Exr2K(GenericCommand):
         texture_out = os.path.join(in_dir, out_file)
 
         if texture_in != texture_out:
-            return [Exr1K.executable(), texture_in, "-v", "--resize:filter=box", "2048x2048", "--no-clobber", "-o", texture_out]
+            return [Resize2K.executable(), texture_in, "-v", "--resize:filter=box", "2048x2048", "--no-clobber", "-o", texture_out]
         else:
             return None
 
-class Exr4K(GenericCommand):
+class Resize4K(GenericCommand):
     """
-    converts and scales image into OpenEXR format, it is expecting "_*K_" tag in file name, which will be replaced with "_4K_"
+    scales image, it is expecting "_*K_" tag in file name, which will be replaced with "_4K_"
     """
     @staticmethod
     def name():
-        return "EXR (4K, box, skip converted)"
+        return "Resize (4K, box, skip converted)"
 
     @staticmethod
     def executable():
@@ -222,6 +222,6 @@ class Exr4K(GenericCommand):
         texture_out = os.path.join(in_dir, out_file)
 
         if texture_in != texture_out:
-            return [Exr1K.executable(), texture_in, "-v", "--resize:filter=box", "4096x4096", "--no-clobber", "-o", texture_out]
+            return [Resize4K.executable(), texture_in, "-v", "--resize:filter=box", "4096x4096", "--no-clobber", "-o", texture_out]
         else:
             return None
