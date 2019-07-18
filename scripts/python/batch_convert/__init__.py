@@ -10,15 +10,15 @@ import gui
 import converters
 
 # config
-input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr"]
+input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr", ".cr2"]
 default_selected_formats = [".jpg", ".jpeg", ".exr"]
-default_output_format = "RSTEXBIN (Redshift), skip converted"
-ext_priority = ["jpg", "png", "exr"]
+default_output_format = "RSTEXBIN (Redshift, skip converted)"
+ext_priority = ["jpg", "png", "cr2", "exr"]
 paths_separator = " /// "
 
 output_formats_dict = converters.GenericCommand.getValidChildCommands()
 
-def getBestTextureFormat(ext_list, tex_list):
+def getBestTextureFormat(ext_list, extensions):
     """
     returns index to a texture from tex_list which has the highest priority in ext_list
     if none of texture extensions is in ext_list, will return None
@@ -26,12 +26,10 @@ def getBestTextureFormat(ext_list, tex_list):
     ext_list
         is list of extensions in ascending order (the latter, the higher priority), e.g.:
         ["jpg", "tif", "png", "exr", "rat"]
-    """
-    extensions = tex_list
-    
+    """    
     idx = -1
     for ext in ext_list:
-        if ext in extensions:
+        if ext.lower() in extensions:
             idx = extensions.index(ext)
     
     if idx != -1:
@@ -39,12 +37,12 @@ def getBestTextureFormat(ext_list, tex_list):
     else:
         return None
 
-def runGui(path=None):
+def runGui(path=None, parent=None):
     """
     displays the main gui,
     path parameter is a string which will set folder path
     """
-    dialog = gui.MainGui(path=path)
+    dialog = gui.MainGui(path=path, parent=parent)
     dialog.show()
     return dialog
 
@@ -79,12 +77,15 @@ class WorkerThread(QtCore.QThread):
                     startupinfo = subprocess.STARTUPINFO()
                     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-                p = subprocess.Popen(cmd, stdout=subprocess.PIPE, startupinfo=startupinfo)
-                out = p.communicate()[0]
-                print "\nThread #{}".format(self.id)
-                print "Command: {}".format( " ".join(cmd) )
-                print "Command output:\n{dashes}\n{out}{dashes}".format(out=out, dashes="-"*50)
-                print "Return code: {}\n".format(p.returncode)
+                if cmd:
+                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, startupinfo=startupinfo)
+                    out = p.communicate()[0]
+                    print "\nThread #{}".format(self.id)
+                    print "Command: {}".format( " ".join(cmd) )
+                    print "Command output:\n{dashes}\n{out}{dashes}".format(out=out, dashes="-"*50)
+                    print "Return code: {}\n".format(p.returncode)
+                else:
+                    print "Cmd is None, skipping..."
 
                 if not self.stop:
                     self.incSignal.sig.emit()
