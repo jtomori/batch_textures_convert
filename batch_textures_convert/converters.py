@@ -3,6 +3,7 @@ import os
 import abc
 import distutils.spawn
 
+
 class GenericCommand(object):
     """
     abstract class that should be used as a base for classes implementing conversion for various renderers
@@ -30,7 +31,7 @@ class GenericCommand(object):
         if some reason conversion shouldn't happend, then returns None
         """
         pass
-    
+
     @classmethod
     def getValidChildCommands(cls):
         """
@@ -40,12 +41,13 @@ class GenericCommand(object):
         command_classes_dict = {}
 
         for cmd_class in command_classes:
-            found = distutils.spawn.find_executable( cmd_class.executable() )
+            found = distutils.spawn.find_executable(cmd_class.executable())
             if found:
-                command_classes_dict[ cmd_class.name() ] = cmd_class.generateCommand
+                command_classes_dict[cmd_class.name()] = cmd_class.generateCommand
             else:
-                print( 'Warning: "{executable}" executable was not found, hiding "{format}" option.'.format( executable=cmd_class.executable(), format=cmd_class.name() ) )
-        
+                print('Warning: "{executable}" executable was not found, hiding "{format}" option.'.format(
+                    executable=cmd_class.executable(), format=cmd_class.name()))
+
         return command_classes_dict
 
 
@@ -66,8 +68,9 @@ class Rat(GenericCommand):
         texture_out = texture_in.split(".")
         texture_out[-1] = "rat"
         texture_out = ".".join(texture_out)
-        
+
         return [Rat.executable(), texture_in, texture_out]
+
 
 class TxPRMan(GenericCommand):
     """
@@ -89,6 +92,7 @@ class TxPRMan(GenericCommand):
 
         return [TxPRMan.executable(), "-u", "--prman", "--checknan", "--filter", "lanczos3", texture_in, "-o", texture_out]
 
+
 class TxArnold(GenericCommand):
     """
     converts textures for Arnold TX format  
@@ -109,6 +113,7 @@ class TxArnold(GenericCommand):
 
         return [TxArnold.executable(), "-u", "--oiio", "--checknan", "--filter", "lanczos3", texture_in, "-o", texture_out]
 
+
 class Rs(GenericCommand):
     """
     converts textures for Redshift RS format  
@@ -124,6 +129,7 @@ class Rs(GenericCommand):
     @staticmethod
     def generateCommand(texture_in):
         return [Rs.executable(), texture_in]
+
 
 class RsNoSkip(GenericCommand):
     """
@@ -141,6 +147,7 @@ class RsNoSkip(GenericCommand):
     def generateCommand(texture_in):
         return [RsNoSkip.executable(), texture_in, "-noskip"]
 
+
 class Dcraw(GenericCommand):
     """
     converts raw photos using dcraw utility into linear TIFF pictures in ACES2065-1 colorspace
@@ -156,6 +163,7 @@ class Dcraw(GenericCommand):
     @staticmethod
     def generateCommand(texture_in):
         return [Dcraw.executable(), "-4", "-T", "-v", "-o", "6", texture_in]
+
 
 class Resize1K(GenericCommand):
     """
@@ -180,6 +188,7 @@ class Resize1K(GenericCommand):
         else:
             return None
 
+
 class Resize2K(GenericCommand):
     """
     scales image, it is expecting "_*K_" tag in file name, which will be replaced with "_2K_"
@@ -202,6 +211,7 @@ class Resize2K(GenericCommand):
             return [Resize2K.executable(), texture_in, "-v", "--resize:filter=box", "2048x2048", "--no-clobber", "-o", texture_out]
         else:
             return None
+
 
 class Resize4K(GenericCommand):
     """

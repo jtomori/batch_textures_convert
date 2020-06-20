@@ -19,17 +19,28 @@ It can be also used as a batch images converter, e.g. for converting raw photos 
 
 *Screenshots from Ubuntu and Windows standalone*
 
-You can see video of this tool [here](https://www.youtube.com/watch?v=5-p3__vsktg).
+You can see this tool in action [here](https://www.youtube.com/watch?v=5-p3__vsktg).
 
 <br>
 
 ## Installation
 TBD
+```
+pip install ...
+```
 
 <br>
 
 ## Usage
 TBD
+```
+batch-textures-convert
+```
+
+Arguments:
+```
+...
+```
 
 *  **Standalone**
     * `$ python batch_textures_converter.py`
@@ -45,8 +56,7 @@ TBD
 
 <br>
 
-A few notes
------------
+## A few notes
 * This tool works on Linux and Windows. Feel free to test it under and contribute for OS X version.
     Right now the following output formats are supported:
     
@@ -68,3 +78,20 @@ A few notes
 * If there are multiple textures with the same name, but different extensions, the tool will pick the one with the highest priority, as specified in `ext_priority` list in `__init__.py`
 
 * Check beggining of `__init__.py` for configuration
+
+## Development
+Create virtual environment.
+```
+python3 -m venv venv
+```
+
+Activate the environment and install dependencies in it.
+```
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Guidelines
+* Autoformat document with *autopep8*, with maximum line length set to 120 (VSCode is configured for it)
+* Use type hints
+* Write docs into docstrings, use google style
