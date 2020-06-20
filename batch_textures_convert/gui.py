@@ -1,31 +1,18 @@
 import os
 import time
-import converters
-import batch_convert
 import multiprocessing
 from PySide2 import QtCore
 from PySide2 import QtGui
 from PySide2 import QtWidgets
 
-try:
-    import hou
-    in_hou = True
-except ImportError:
-    in_hou = False
-
+import batch_convert
+from . import converters
 
 class MainGui(QtWidgets.QWidget):
-    """
-    A class specifying graphical user interface of the tool
-    """
+    """Graphical user interface of the tool"""
 
     def __init__(self, parent=None, path=None):
         super(MainGui, self).__init__(parent)
-
-        if in_hou:
-            self.setParent(hou.ui.mainQtWindow(), QtCore.Qt.Window)
-            self.setProperty("houdiniStyle", True)
-
         self.setWindowTitle("Batch texture conversion")
         self.setMinimumSize(400, 550)
 
@@ -49,18 +36,7 @@ class MainGui(QtWidgets.QWidget):
         if path:
             self.folder_path.setText(path)
 
-        if in_hou:
-            self.folder_button = hou.qt.createFileChooserButton()  # this is H specific
-            self.folder_button.setFileChooserFilter(hou.fileType.Directory)
-            self.folder_button.setFileChooserMode(hou.fileChooserMode.Read)
-            self.folder_button.setFileChooserTitle("Select a folder with textures for conversion")
-            self.folder_button.setFileChooserMultipleSelect(True)
-            if path:
-                self.folder_button.setFileChooserStartDirectory(path)
-            else:
-                self.folder_button.setFileChooserStartDirectory(hou.expandString("$JOB"))
-        else:
-            self.folder_button = QtWidgets.QPushButton("...")
+        self.folder_button = QtWidgets.QPushButton("...")
 
         self.input_formats = QtWidgets.QListWidget()
         self.input_formats.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
@@ -72,16 +48,13 @@ class MainGui(QtWidgets.QWidget):
             if current_item in selected_options:
                 self.input_formats.setCurrentRow(i, QtCore.QItemSelectionModel.SelectionFlag.Select)
 
-        if in_hou:
-            self.output_format = hou.qt.createComboBox()  # this is H specific
-        else:
-            self.output_format = QtWidgets.QComboBox()
+        self.output_format = QtWidgets.QComboBox()
         self.output_format.addItems(self.output_formats_list)
         try:
             default_idx = self.output_formats_list.index(self.default_output_format)
             self.output_format.setCurrentIndex(default_idx)
         except ValueError:
-            print "Default output format option is not available, skipping default selection"
+            print("Default output format option is not available, skipping default selection")
             pass
 
         cpu_threads_max = multiprocessing.cpu_count()
@@ -145,10 +118,7 @@ class MainGui(QtWidgets.QWidget):
         self.move(my_dimensions.topLeft())
 
         # Add signals
-        if in_hou:
-            self.folder_button.fileSelected.connect(self.applyFolderPathHou)
-        else:
-            self.folder_button.clicked.connect(self.folderPathDialog)
+        self.folder_button.clicked.connect(self.folderPathDialog)
         self.progress_bar.valueChanged.connect(self.updateProgressText)
         self.button_convert.clicked.connect(self.convert)
         self.button_stop.clicked.connect(self.stopConversion)
@@ -184,17 +154,6 @@ class MainGui(QtWidgets.QWidget):
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
             path = str(self.paths_separator.join(dialog.selectedFiles()))
             self.folder_path.setText(path)
-
-    @QtCore.Slot(str)
-    def applyFolderPathHou(self, path):
-        """
-        updates folder_path label when called from houdini button
-        """
-        if in_hou:
-            path = hou.expandString(path)
-            if path != "":
-                self.folder_path.setText(path.replace(" ; ", self.paths_separator))
-                self.folder_button.setFileChooserStartDirectory(path.split(self.paths_separator)[0])
 
     @QtCore.Slot()
     def incProgressBar(self):
@@ -279,9 +238,6 @@ def confirmDialog(tex_count):
     font.setBold(True)
 
     dialog = QtWidgets.QMessageBox()
-    if in_hou:
-        dialog.setParent(hou.ui.mainQtWindow(), QtCore.Qt.Window)
-        dialog.setProperty("houdiniStyle", True)
     dialog.setFont(font)
 
     dialog.setIcon(QtWidgets.QMessageBox.Information)

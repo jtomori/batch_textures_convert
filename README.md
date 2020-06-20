@@ -23,6 +23,10 @@ You can see this tool in action [here](https://www.youtube.com/watch?v=5-p3__vsk
 
 <br>
 
+This project is built for Python 3.6 and higher. The initial version was built with Python 2.7 and can be found in the ``py27`` branch. The ``py27`` branch supports also integration into various DCCs including Houdini, Maya, Nuke.
+
+<br>
+
 ## Installation
 TBD
 ```
@@ -80,15 +84,25 @@ Arguments:
 * Check beggining of `__init__.py` for configuration
 
 ## Development
-Create virtual environment.
+Create virtual environment:
 ```
 python3 -m venv venv
 ```
 
-Activate the environment and install dependencies in it.
+Activate the environment and install dependencies in it:
 ```
 source venv/bin/activate
 pip install -r requirements.txt
+```
+
+Build package:
+```
+...
+```
+
+Run tests:
+```
+...
 ```
 
 ### Guidelines

@@ -3,11 +3,11 @@ import time
 import subprocess
 from PySide2 import QtCore
 from threading import Thread
-from Queue import Queue, Empty
+from queue import Queue, Empty
 from collections import defaultdict
 
-import gui
-import converters
+from .import gui
+from . import converters
 
 # config
 input_formats = [".jpg", ".jpeg", ".tga", ".exr", ".tif", ".tiff", ".png", ".bmp", ".gif", ".ppm", ".hdr", ".cr2"]
@@ -80,12 +80,12 @@ class WorkerThread(QtCore.QThread):
                 if cmd:
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, startupinfo=startupinfo)
                     out = p.communicate()[0]
-                    print "\nThread #{}".format(self.id)
-                    print "Command: {}".format( " ".join(cmd) )
-                    print "Command output:\n{dashes}\n{out}{dashes}".format(out=out, dashes="-"*50)
-                    print "Return code: {}\n".format(p.returncode)
+                    print("\nThread #{}".format(self.id))
+                    print("Command: {}".format( " ".join(cmd) ))
+                    print("Command output:\n{dashes}\n{out}{dashes}".format(out=out, dashes="-"*50))
+                    print("Return code: {}\n".format(p.returncode))
                 else:
-                    print "Cmd is None, skipping..."
+                    print("Cmd is None, skipping...")
 
                 if not self.stop:
                     self.incSignal.sig.emit()
@@ -120,7 +120,7 @@ def batchConvert(ui_obj, input_formats, output_format_func, root_path, threads):
     for path in root_path:
         path = os.path.normpath(path)
 
-        for root, dirs, files in os.walk(path):
+        for root, _, files in os.walk(path):
             for file in files:
                 if file.lower().endswith( tuple(input_formats) ):
                     textures.append(os.path.join(root, file))
@@ -155,7 +155,7 @@ def batchConvert(ui_obj, input_formats, output_format_func, root_path, threads):
     if proceed:
         # convert list to a queue
         texturesQueue = Queue(maxsize=0)
-        for x in xrange(len(textures)):
+        for x in range(len(textures)):
             texturesQueue.put(textures[x])
 
         ui_obj.progress_bar.setMaximum(len(textures))

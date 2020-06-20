@@ -5,38 +5,27 @@ import distutils.spawn
 
 
 class GenericCommand(object):
-    """
-    abstract class that should be used as a base for classes implementing conversion for various renderers
-    """
+    """Abstract class that should be used as a base for classes implementing conversion for various renderers"""
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def name(self):
-        """
-        should return str name of output format, it will be shown in UI for user to choose
-        """
+        """Should return str name of output format, it will be shown in UI for user to choose"""
         pass
 
     @abc.abstractmethod
     def executable(self):
-        """
-        should return an executable performing the conversion
-        """
+        """Should return an executable performing the conversion"""
         pass
 
     @abc.abstractmethod
     def generateCommand(self):
-        """
-        should return a list containing command and arguments
-        if some reason conversion shouldn't happend, then returns None
-        """
+        """Should return a list containing command and arguments. If some reason conversion shouldn't happend, then returns None"""
         pass
 
     @classmethod
     def getValidChildCommands(cls):
-        """
-        finds implemented child classes and checks if their executable is present on the system
-        """
+        """Finds implemented child classes and checks if their executable is present on the system"""
         command_classes = cls.__subclasses__()
         command_classes_dict = {}
 
@@ -52,9 +41,7 @@ class GenericCommand(object):
 
 
 class Rat(GenericCommand):
-    """
-    converts textures to Mantra RAT format    
-    """
+    """Converts textures to Mantra RAT format"""
     @staticmethod
     def name():
         return "RAT (Mantra)"
@@ -73,9 +60,7 @@ class Rat(GenericCommand):
 
 
 class TxPRMan(GenericCommand):
-    """
-    converts textures for PRMan TX format  
-    """
+    """Converts textures for PRMan TX format"""
     @staticmethod
     def name():
         return "TX (PRMan)"
@@ -94,9 +79,7 @@ class TxPRMan(GenericCommand):
 
 
 class TxArnold(GenericCommand):
-    """
-    converts textures for Arnold TX format  
-    """
+    """Converts textures for Arnold TX format"""
     @staticmethod
     def name():
         return "TX (Arnold)"
@@ -115,9 +98,7 @@ class TxArnold(GenericCommand):
 
 
 class Rs(GenericCommand):
-    """
-    converts textures for Redshift RS format  
-    """
+    """Converts textures for Redshift RS format"""
     @staticmethod
     def name():
         return "RSTEXBIN (Redshift, skip converted)"
@@ -132,9 +113,7 @@ class Rs(GenericCommand):
 
 
 class RsNoSkip(GenericCommand):
-    """
-    converts textures for Redshift RS format, disables checking for already converted textures
-    """
+    """Converts textures for Redshift RS format, disables checking for already converted texture"""
     @staticmethod
     def name():
         return "RSTEXBIN (Redshift, overwrite converted)"
@@ -149,9 +128,7 @@ class RsNoSkip(GenericCommand):
 
 
 class Dcraw(GenericCommand):
-    """
-    converts raw photos using dcraw utility into linear TIFF pictures in ACES2065-1 colorspace
-    """
+    """Converts raw photos using dcraw utility into linear TIFF pictures in ACES2065-1 colorspac"""
     @staticmethod
     def name():
         return "TIFF (dcraw, linear, ACES2065-1)"
@@ -166,9 +143,7 @@ class Dcraw(GenericCommand):
 
 
 class Resize1K(GenericCommand):
-    """
-    scales image, it is expecting "_*K_" tag in file name, which will be replaced with "_1K_"
-    """
+    """Scales image, it is expecting "_*K_" tag in file name, which will be replaced with "_1K_" """
     @staticmethod
     def name():
         return "Resize (1K, box, skip converted)"
@@ -190,9 +165,7 @@ class Resize1K(GenericCommand):
 
 
 class Resize2K(GenericCommand):
-    """
-    scales image, it is expecting "_*K_" tag in file name, which will be replaced with "_2K_"
-    """
+    """Scales image, it is expecting "_*K_" tag in file name, which will be replaced with "_2K_" """
     @staticmethod
     def name():
         return "Resize (2K, box, skip converted)"
@@ -214,9 +187,7 @@ class Resize2K(GenericCommand):
 
 
 class Resize4K(GenericCommand):
-    """
-    scales image, it is expecting "_*K_" tag in file name, which will be replaced with "_4K_"
-    """
+    """Scales image, it is expecting "_*K_" tag in file name, which will be replaced with "_4K_" """
     @staticmethod
     def name():
         return "Resize (4K, box, skip converted)"
