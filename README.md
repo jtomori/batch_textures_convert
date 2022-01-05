@@ -4,6 +4,10 @@ Batch Textures Conversion
 
 <br>
 
+:information_source: Note that this tool is no longer maintained. TOPs in recent Houdini versions are good replacement for it. See [this blog post](https://jtomori.github.io/2022/2022-01-05.html) for more info.
+
+<br>
+
 Intro
 -----
 This tool helps with pre-processing of textures for offline renderers. It can be used from Houdini, Maya, Nuke or as a standalone application.
